@@ -659,6 +659,253 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     f.close();
 }
 
+void System::SaveBA_2(const string &datadir, const int &seq)
+{
+    cout << endl << "Begin Saving Bundle Adjustment data to  " << datadir << " ..." << endl;
+    // Create output files
+    std::ofstream camera_file_;
+    std::ofstream track_file_;
+    std::ofstream feature_file_;
+    std::ofstream camera_partition_file_;
+    std::stringstream ss_camera_partition;
+    ss_camera_partition << datadir << "/camera_partitions_" << seq << ".txt";  
+
+    camera_file_.open(datadir + "/cameras.txt");
+    if (!camera_file_.is_open()) {
+        std::cerr << "Error: Unable to open the camera file." << std::endl;
+        throw std::runtime_error("Unable to open the camera file.");
+    }    
+    camera_file_ << std::setprecision(12);
+    camera_file_ << "camera_id f a px py qx qy qz qw x y z\n";
+
+    track_file_.open(datadir + "/tracks.txt");
+    if (!track_file_.is_open()) {
+        std::cerr << "Error: Unable to open the tracks file." << std::endl;
+        throw std::runtime_error("Unable to open the tracks file.");
+    }  
+    track_file_ << std::setprecision(12);
+    track_file_ << "track_id x y z w\n";
+
+    feature_file_.open(datadir + "/features.txt");
+    if (!feature_file_.is_open()) {
+        std::cerr << "Error: Unable to open the features file." << std::endl;
+        throw std::runtime_error("Unable to open the features file.");
+    } 
+    feature_file_ << std::setprecision(12);
+    feature_file_ << "camera_id track_id x y weight\n";
+
+    camera_partition_file_.open(ss_camera_partition.str());
+    if (!camera_partition_file_.is_open()) {
+        std::cerr << "Error: Unable to open the camera_partitions file." << std::endl;
+        throw std::runtime_error("Unable to open the camera_partitions file.");
+    } 
+    camera_partition_file_ << std::setprecision(12);
+    camera_partition_file_ << "camera_id partition_id\n";
+
+
+    long unsigned int maxKFid = 0;
+    vector<KeyFrame*> vpKFs = mpAtlas->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+    // Transform all keyframes so that the first keyframe is at the origin.
+    // After a loop closure the first keyframe might not be at the origin.
+    camera_file_ << fixed;
+
+    for(size_t i=0; i<vpKFs.size(); i++)
+    {
+        KeyFrame* pKF = vpKFs[i];
+
+       // pKF->SetPose(pKF->GetPose()*Two);
+
+        if(pKF->isBad())
+            continue;
+
+        Sophus::SE3f Twc = pKF->GetPoseInverse();
+        Eigen::Quaternionf q = Twc.unit_quaternion();
+        Eigen::Vector3f t = Twc.translation();
+        // Save camera to file
+        camera_file_ << pKF->mnId << " ";
+        camera_file_ << 458.654 << " ";
+        camera_file_ << 1.002 << " ";
+        camera_file_ << 367.215 << " ";
+        camera_file_ << 248.375 << " ";
+        camera_file_ << q.x() << " ";
+        camera_file_ << q.y() << " ";
+        camera_file_ << q.z() << " ";
+        camera_file_ << q.w() << " ";
+        camera_file_ << t(0) << " ";
+        camera_file_ << t(1) << " ";
+        camera_file_ << t(2) << "\n";
+        if(pKF->mnId>maxKFid)
+            maxKFid=pKF->mnId;
+        camera_partition_file_ << pKF->mnId << " ";
+        camera_partition_file_ << seq << "\n";
+    }
+    camera_partition_file_.close();
+    camera_file_.close();
+
+    vector<MapPoint*> vpMP = mpAtlas->GetAllMapPoints();
+
+    // Save tracks
+    for (size_t i=0; i<vpMP.size(); i++) {
+        MapPoint* pMP = vpMP[i];
+        if(pMP->isBad())
+            continue;
+        const int track_id = pMP->mnId+maxKFid+1;
+        const auto p_world = pMP->GetWorldPos().cast<double>();
+
+        // Save this track to file
+        track_file_ << track_id << " ";
+        track_file_ << p_world(0) << " ";
+        track_file_ << p_world(1) << " ";
+        track_file_ << p_world(2) << " ";
+        track_file_ << 1.0 << "\n";
+
+        const map<KeyFrame*,tuple<int,int>> observations = pMP->GetObservations();
+
+        for(map<KeyFrame*,tuple<int,int>>::const_iterator mit=observations.begin(); mit!=observations.end(); mit++)
+        {
+            KeyFrame* pKF = mit->first;
+            if(pKF->isBad() || pKF->mnId>maxKFid)
+                continue;
+            const int leftIndex = get<0>(mit->second);
+            if(leftIndex != -1 && pKF->mvuRight[get<0>(mit->second)]<0) {
+                const cv::KeyPoint &kpUn = pKF->mvKeysUn[leftIndex];
+                Eigen::Matrix<double,2,1> obs;
+                obs << kpUn.pt.x, kpUn.pt.y;
+                feature_file_ << pKF->mnId << " ";
+                feature_file_ << track_id << " ";
+                feature_file_ << obs(0) << " ";
+                feature_file_ << obs(1) << "\n";
+            }
+        }
+    }
+
+    track_file_.close();
+    feature_file_.close();
+
+    cout << endl << "Finish Saving Bundle Adjustment data to  " << datadir << " ..." << endl;
+
+}
+
+void System::SaveBA_1(const string &datadir)
+{
+    cout << endl << "Begin Saving Bundle Adjustment data to  " << datadir << " ..." << endl;
+    // Create output files
+    std::ofstream camera_file_;
+    std::ofstream track_file_;
+    std::ofstream feature_file_;
+    std::ofstream camera_partition_file_;
+
+    camera_file_.open(datadir + "/cameras.txt");
+    if (!camera_file_.is_open()) {
+        std::cerr << "Error: Unable to open the camera file." << std::endl;
+        throw std::runtime_error("Unable to open the camera file.");
+    }    
+    camera_file_ << std::setprecision(12);
+    camera_file_ << "camera_id f a px py qx qy qz qw x y z\n";
+
+    track_file_.open(datadir + "/tracks.txt");
+    if (!track_file_.is_open()) {
+        std::cerr << "Error: Unable to open the tracks file." << std::endl;
+        throw std::runtime_error("Unable to open the tracks file.");
+    }  
+    track_file_ << std::setprecision(12);
+    track_file_ << "track_id x y z w\n";
+
+    feature_file_.open(datadir + "/features.txt");
+    if (!feature_file_.is_open()) {
+        std::cerr << "Error: Unable to open the features file." << std::endl;
+        throw std::runtime_error("Unable to open the features file.");
+    } 
+    feature_file_ << std::setprecision(12);
+    feature_file_ << "camera_id track_id x y weight\n";
+
+
+    long unsigned int maxKFid = 0;
+    vector<KeyFrame*> vpKFs = mpAtlas->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+    // Transform all keyframes so that the first keyframe is at the origin.
+    // After a loop closure the first keyframe might not be at the origin.
+    camera_file_ << fixed;
+
+    for(size_t i=0; i<vpKFs.size(); i++)
+    {
+        KeyFrame* pKF = vpKFs[i];
+
+       // pKF->SetPose(pKF->GetPose()*Two);
+
+        if(pKF->isBad())
+            continue;
+
+        Sophus::SE3f Twc = pKF->GetPoseInverse();
+        Eigen::Quaternionf q = Twc.unit_quaternion();
+        Eigen::Vector3f t = Twc.translation();
+        // Save camera to file
+        camera_file_ << pKF->mnId << " ";
+        camera_file_ << 458.654 << " ";
+        camera_file_ << 1.002 << " ";
+        camera_file_ << 367.215 << " ";
+        camera_file_ << 248.375 << " ";
+        camera_file_ << q.x() << " ";
+        camera_file_ << q.y() << " ";
+        camera_file_ << q.z() << " ";
+        camera_file_ << q.w() << " ";
+        camera_file_ << t(0) << " ";
+        camera_file_ << t(1) << " ";
+        camera_file_ << t(2) << "\n";
+        if(pKF->mnId>maxKFid)
+            maxKFid=pKF->mnId;
+
+    }
+    camera_file_ << "new session" << "\n";
+    camera_file_.close();
+
+    vector<MapPoint*> vpMP = mpAtlas->GetAllMapPoints();
+
+    // Save tracks
+    for (size_t i=0; i<vpMP.size(); i++) {
+        MapPoint* pMP = vpMP[i];
+        if(pMP->isBad())
+            continue;
+        const int track_id = pMP->mnId+maxKFid+1;
+        const auto p_world = pMP->GetWorldPos().cast<double>();
+
+        // Save this track to file
+        track_file_ << track_id << " ";
+        track_file_ << p_world(0) << " ";
+        track_file_ << p_world(1) << " ";
+        track_file_ << p_world(2) << " ";
+        track_file_ << 1.0 << "\n";
+
+        const map<KeyFrame*,tuple<int,int>> observations = pMP->GetObservations();
+
+        for(map<KeyFrame*,tuple<int,int>>::const_iterator mit=observations.begin(); mit!=observations.end(); mit++)
+        {
+            KeyFrame* pKF = mit->first;
+            if(pKF->isBad() || pKF->mnId>maxKFid)
+                continue;
+            const int leftIndex = get<0>(mit->second);
+            if(leftIndex != -1 && pKF->mvuRight[get<0>(mit->second)]<0) {
+                const cv::KeyPoint &kpUn = pKF->mvKeysUn[leftIndex];
+                Eigen::Matrix<double,2,1> obs;
+                obs << kpUn.pt.x, kpUn.pt.y;
+                feature_file_ << pKF->mnId << " ";
+                feature_file_ << track_id << " ";
+                feature_file_ << obs(0) << " ";
+                feature_file_ << obs(1) << "\n";
+            }
+        }
+    }
+
+    track_file_.close();
+    feature_file_.close();
+
+    cout << endl << "Finish Saving Bundle Adjustment data to  " << datadir << " ..." << endl;
+
+}
+
 void System::SaveTrajectoryEuRoC(const string &filename)
 {
 
@@ -1235,7 +1482,7 @@ void System::SaveTrajectoryKITTI(const string &filename)
         lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
     {
         ORB_SLAM3::KeyFrame* pKF = *lRit;
-
+        
         Sophus::SE3f Trw;
 
         if(!pKF)
