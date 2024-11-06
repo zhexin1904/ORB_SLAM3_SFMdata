@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/Examples/Monocular/mono_euroc",
+            "args": [
+                "./Vocabulary/ORBvoc.txt",
+                "./Examples/Monocular/EuRoC.yaml",
+                "/home/jason/datasets/MH_01_easy/MH01",
+                "./Examples/Monocular/EuRoC_TimeStamps/MH01.txt",
+                "/home/jason/datasets/MH_01_easy/MH02",
+                "./Examples/Monocular/EuRoC_TimeStamps/MH02.txt",
+                "dataset-MH01_to_MH02_mon"
+            ],
+            "stopAtEntry": false,
+            "preLaunchTask": "cmake:debug",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        }
+    ]
+}
