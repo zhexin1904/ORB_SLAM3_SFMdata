@@ -78,6 +78,7 @@ void Atlas::CreateNewMap()
     cout << "Creation of new map with last KF id: " << mnLastInitKFidMap << endl;
 
     mpCurrentMap = new Map(mnLastInitKFidMap);
+    // Jason
     mpCurrentMap_origin = new Map(mnLastInitKFidMap);
     mpCurrentMap->SetCurrentMap();
     mspMaps.insert(mpCurrentMap);

@@ -968,8 +968,9 @@ void System::SaveBA_3(const string &datadir)
                 continue;
 
             Sophus::SE3f Twc = pKF->GetPoseInverse();
-            Eigen::Quaternionf q = Twc.unit_quaternion();
-            Eigen::Vector3f t = Twc.translation();
+            Sophus::SE3f Tcw = Twc.inverse();
+            Eigen::Quaternionf q = Tcw.unit_quaternion();
+            Eigen::Vector3f t = Tcw.translation();
             // Save camera to file
             camera_file_ << pKF->mnId << " ";
             camera_file_ << 458.654 << " ";
@@ -996,7 +997,8 @@ void System::SaveBA_3(const string &datadir)
             MapPoint* pMP = vpMP[i];
             if(pMP->isBad())
                 continue;
-            const int track_id = pMP->mnId+maxKFid+1;
+            // const int track_id = pMP->mnId+maxKFid+1;
+            const int track_id = pMP->mnId;
             const auto p_world = pMP->GetWorldPos().cast<double>();
 
             // Save this track to file

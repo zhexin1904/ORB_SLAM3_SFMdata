@@ -6,14 +6,14 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/Examples/Monocular/mono_euroc",
+            "program": "${workspaceFolder}/Examples/Monocular-Inertial/mono_inertial_euroc",
             "args": [
                 "./Vocabulary/ORBvoc.txt",
-                "./Examples/Monocular/EuRoC.yaml",
+                "./Examples/Monocular-Inertial/EuRoC.yaml",
                 "/home/jason/datasets/MH_01_easy/MH01",
-                "./Examples/Monocular/EuRoC_TimeStamps/MH01.txt",
+                "./Examples/Monocular-Inertial/EuRoC_TimeStamps/MH01.txt",
                 "/home/jason/datasets/MH_01_easy/MH02",
-                "./Examples/Monocular/EuRoC_TimeStamps/MH02.txt",
+                "./Examples/Monocular-Inertial/EuRoC_TimeStamps/MH02.txt",
                 "dataset-MH01_to_MH02_mon"
             ],
             "stopAtEntry": false,
