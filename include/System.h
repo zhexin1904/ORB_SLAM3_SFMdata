@@ -187,6 +187,8 @@ public:
     bool isFinished();
 
     void ChangeDataset();
+    // Jason
+    void SaveLastMap_system();
 
     float GetImageScale();
 

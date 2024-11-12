@@ -96,4 +96,20 @@ can I do:
 
 when inter-map LC happens, record the LC()
 
- how to find the points correspondence  ?
+ how to find the points correspondence  ? ->
+
+SearchAndFuse(vCorrectedSim3, vpCheckFuseMapPoint);
+
+
+
+```
+1, merge for the local window
+spLocalWindowKFs, spLocalWindowMPs
+spMergeConnectedKFs, spMapPointMerge
+spMapPointMerge ->(copy) vpCheckFuseMapPoint
+mTcwMerge, merge means convert to the world frame of the merged map(non-active map) (if mergeing happens, all the kf is in the frame of first keyFrame of the first map)
+mPosMerge (also convert all the map point)
+SearchAndFuse (if the same map point, using the id in old map, in the current map)
+2, merge for the rest in the map
+```
+

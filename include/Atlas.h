@@ -77,6 +77,8 @@ public:
     ~Atlas();
 
     void CreateNewMap();
+    // Jason
+    void SaveLastMap_atlas();
     void ChangeMap(Map* pMap);
 
     unsigned long int GetLastInitKFid();

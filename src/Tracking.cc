@@ -2699,6 +2699,12 @@ void Tracking::CreateMapInAtlas()
     mbCreatedMap = true;
 }
 
+// Jason
+void Tracking::SaveLastMap_tracking()
+{
+    mpAtlas->SaveLastMap_atlas();
+}
+
 void Tracking::CheckReplacedInLastFrame()
 {
     for(int i =0; i<mLastFrame.N; i++)

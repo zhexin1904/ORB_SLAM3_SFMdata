@@ -86,6 +86,22 @@ void Atlas::CreateNewMap()
     mspMaps_origin.insert(mpCurrentMap_origin);
 }
 
+// Jason
+void Atlas::SaveLastMap_atlas()
+{
+
+    unique_lock<mutex> lock(mMutexAtlas);
+    if(mpCurrentMap)
+    {
+        auto keyFrames = mpCurrentMap->GetAllKeyFrames();
+        auto mapPoints = mpCurrentMap->GetAllMapPoints();
+        mpCurrentMap_origin->SetAllKeyFrames(keyFrames);
+        mpCurrentMap_origin->SetAllMapPoints(mapPoints);
+        mpCurrentMap->SetStoredMap();
+        cout << "Stored map with ID: " << mpCurrentMap->GetId() << endl;
+    }
+}
+
 void Atlas::ChangeMap(Map* pMap)
 {
     unique_lock<mutex> lock(mMutexAtlas);

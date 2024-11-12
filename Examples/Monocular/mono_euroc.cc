@@ -190,7 +190,8 @@ int main(int argc, char **argv)
     }
     // Jason
     // Call ChangeDataset one more time, to save the last map info
-    SLAM.ChangeDataset();
+    // SLAM.ChangeDataset();
+    SLAM.SaveLastMap_system();
     SLAM.SaveBA_3("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data");
 
     // Stop all threads

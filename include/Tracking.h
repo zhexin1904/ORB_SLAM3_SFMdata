@@ -95,6 +95,8 @@ public:
     }
 
     void CreateMapInAtlas();
+    // Jason
+    void SaveLastMap_tracking();
     //std::mutex mMutexTracks;
 
     //--
