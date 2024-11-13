@@ -242,7 +242,7 @@ int main(int argc, char **argv)
 
     }
     // Jason
-    SLAM.ChangeDataset();
+    SLAM.SaveLastMap_system();
     SLAM.SaveBA_3("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data");
 
     // cout << "ttrack_tot = " << ttrack_tot << std::endl;
