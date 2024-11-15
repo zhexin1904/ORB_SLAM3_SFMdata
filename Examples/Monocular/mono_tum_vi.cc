@@ -189,6 +189,8 @@ int main(int argc, char **argv)
         }
 
     }
+    SLAM.SaveLastMap_system();
+    SLAM.SaveBA_3("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data/MH05_VI");
 
     // cout << "ttrack_tot = " << ttrack_tot << std::endl;
     // Stop all threads

@@ -228,6 +228,8 @@ int main(int argc, char *argv[])
             SLAM.ChangeDataset();
         }
     }
+    SLAM.SaveLastMap_system();
+    SLAM.SaveBA_3("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data/MH05_VI");
 
     // Stop all threads
     SLAM.Shutdown();

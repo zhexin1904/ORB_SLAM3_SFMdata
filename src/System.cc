@@ -1051,6 +1051,7 @@ void System::SaveBA_3(const string &datadir)
 
     int partId = 0;
     int subMapIndex = 1;
+    bool validTrack;
 
     for (const auto &subMap : mpAtlas->GetAllMaps_origin())
     {
@@ -1105,37 +1106,81 @@ void System::SaveBA_3(const string &datadir)
 
         vector<MapPoint*> vpMP = subMap->GetAllMapPoints();
 
-        for (size_t i = 0; i < vpMP.size(); i++) {
-            MapPoint* pMP = vpMP[i];
-            if (pMP->isBad())
+        // for (size_t i = 0; i < vpMP.size(); i++) {
+        //     MapPoint* pMP = vpMP[i];
+        //     if (pMP->isBad())
+        //         continue;
+
+        //     const int track_id = pMP->mnId;
+        //     const map<KeyFrame*, tuple<int, int>> observations = pMP->GetObservations();
+
+        //     for (auto mit = observations.begin(); mit != observations.end(); mit++) {
+        //         KeyFrame* pKF = mit->first;
+        //         if (pKF->isBad() || pKF->mnId > maxKFid)
+        //             continue;
+
+        //         const int leftIndex = get<0>(mit->second);
+        //         if (leftIndex != -1 && pKF->mvuRight[get<0>(mit->second)] < 0) {
+        //             const cv::KeyPoint &kpUn = pKF->mvKeysUn[leftIndex];
+        //             float px = kpUn.pt.x;
+        //             float py = kpUn.pt.y;
+        //             if (kpUn.pt.x < 0) 
+        //                 px = -px;
+        //             if (kpUn.pt.y < 0)
+        //                 py = -py;
+        //                 Eigen::Matrix<double, 2, 1> obs;
+        //                 obs << px, py;
+        //                 feature_file_ << pKF->mnId << " " << track_id << " ";
+        //                 feature_file_ << obs(0) << " " << obs(1) << "\n";
+        //                 validTrack = true;
+                    
+        //             // else {
+        //             //     validTrack = false;
+        //             //     break;
+        //             // }
+        //         }       
+        //     }
+            
+        //         const auto p_world = pMP->GetWorldPos().cast<double>();
+
+        //         track_file_ << track_id << " ";
+        //         track_file_ << p_world(0) << " " << p_world(1) << " " << p_world(2) << " ";
+        //         track_file_ << 1.0 << "\n";
+            
+        // }
+    for (size_t i=0; i<vpMP.size(); i++) {
+        MapPoint* pMP = vpMP[i];
+        if(pMP->isBad())
+            continue;
+        const int track_id = pMP->mnId+maxKFid+1;
+        const auto p_world = pMP->GetWorldPos().cast<double>();
+
+        // Save this track to file
+        track_file_ << track_id << " ";
+        track_file_ << p_world(0) << " ";
+        track_file_ << p_world(1) << " ";
+        track_file_ << p_world(2) << " ";
+        track_file_ << 1.0 << "\n";
+
+        const map<KeyFrame*,tuple<int,int>> observations = pMP->GetObservations();
+
+        for(map<KeyFrame*,tuple<int,int>>::const_iterator mit=observations.begin(); mit!=observations.end(); mit++)
+        {
+            KeyFrame* pKF = mit->first;
+            if(pKF->isBad() || pKF->mnId>maxKFid)
                 continue;
-
-            const int track_id = pMP->mnId;
-            const auto p_world = pMP->GetWorldPos().cast<double>();
-
-            track_file_ << track_id << " ";
-            track_file_ << p_world(0) << " " << p_world(1) << " " << p_world(2) << " ";
-            track_file_ << 1.0 << "\n";
-
-            const map<KeyFrame*, tuple<int, int>> observations = pMP->GetObservations();
-
-            for (auto mit = observations.begin(); mit != observations.end(); mit++) {
-                KeyFrame* pKF = mit->first;
-                if (pKF->isBad() || pKF->mnId > maxKFid)
-                    continue;
-
-                const int leftIndex = get<0>(mit->second);
-                if (leftIndex != -1 && pKF->mvuRight[get<0>(mit->second)] < 0) {
-                    const cv::KeyPoint &kpUn = pKF->mvKeysUn[leftIndex];
-                    Eigen::Matrix<double, 2, 1> obs;
-                    obs << kpUn.pt.x, kpUn.pt.y;
-
-                    feature_file_ << pKF->mnId << " " << track_id << " ";
-                    feature_file_ << obs(0) << " " << obs(1) << "\n";
-                }
+            const int leftIndex = get<0>(mit->second);
+            if(leftIndex != -1 && pKF->mvuRight[get<0>(mit->second)]<0) {
+                const cv::KeyPoint &kpUn = pKF->mvKeysUn[leftIndex];
+                Eigen::Matrix<double,2,1> obs;
+                obs << kpUn.pt.x, kpUn.pt.y;
+                feature_file_ << pKF->mnId << " ";
+                feature_file_ << track_id << " ";
+                feature_file_ << obs(0) << " ";
+                feature_file_ << obs(1) << "\n";
             }
         }
-
+    }
         camera_file_.close();
         track_file_.close();
         feature_file_.close();
