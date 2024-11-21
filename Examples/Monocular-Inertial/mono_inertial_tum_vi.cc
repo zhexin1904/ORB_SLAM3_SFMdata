@@ -240,10 +240,12 @@ int main(int argc, char **argv)
             SLAM.ChangeDataset();
         }
 
+
+
     }
     // Jason
     SLAM.SaveLastMap_system();
-    SLAM.SaveBA_3("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data/TUM_VI");
+    SLAM.SaveBA_tum("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data/outdoor1");
 
     // cout << "ttrack_tot = " << ttrack_tot << std::endl;
     // Stop all threads

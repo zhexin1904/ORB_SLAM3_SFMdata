@@ -155,6 +155,8 @@ public:
     void SaveBA_1(const string &filename);
     void SaveBA_2(const string &filename, const int &seq);
     void SaveBA_3(const string &filename);
+    void SaveBA_tum(const string &filename);
+    void SaveBA_euroc(const string &filename);
 
     void SaveTrajectoryEuRoC(const string &filename);
     void SaveKeyFrameTrajectoryEuRoC(const string &filename);

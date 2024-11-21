@@ -192,7 +192,7 @@ int main(int argc, char **argv)
     // Call ChangeDataset one more time, to save the last map info
     // SLAM.ChangeDataset();
     SLAM.SaveLastMap_system();
-    SLAM.SaveBA_3("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data/MH05_VI");
+    SLAM.SaveBA_euroc("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data/MH12345_new");
 
     // Stop all threads
     SLAM.Shutdown();

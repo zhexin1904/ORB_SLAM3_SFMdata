@@ -165,6 +165,8 @@ int main(int argc, char **argv)
         }
 
     }
+    SLAM.SaveLastMap_system();
+    SLAM.SaveBA_euroc("/home/jason/VSLAM/orbslam3/src/ORB_SLAM3/data/euroc/MH12345");
     // Stop all threads
     SLAM.Shutdown();
 
